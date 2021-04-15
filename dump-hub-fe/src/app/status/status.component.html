@@ -1,0 +1,95 @@
+<div class="progress loop" *ngIf="loadingHistory">
+  <progress></progress>
+</div>
+<div class="progress top" *ngIf="!loadingHistory">
+  <progress value="0" max="100"></progress>
+</div>
+
+<clr-modal [(clrModalOpen)]="historyError">
+  <h3 class="modal-title">
+      <cds-icon shape="error-standard" size=30 solid></cds-icon>&nbsp;History error
+  </h3>
+  <div class="modal-body">
+      <p>{{ errorMessage }}</p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="historyError = false">Ok</button>
+  </div>
+</clr-modal>
+
+<clr-modal [(clrModalOpen)]="deleteModal">
+  <h3 class="modal-title">
+      <cds-icon shape="exclamation-triangle" size=30 solid></cds-icon>&nbsp;Delete items
+  </h3>
+  <div class="modal-body">
+      <p>Do you want to delete all entries associated with {{toDelete}}?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onDeleteCancel()">Cancel</button>
+      <button type="button" class="btn btn-danger" (click)="onDelete()">Delete</button>      
+  </div>
+</clr-modal>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Filename</th>
+      <th>Checksum</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let history of uploadHistory">
+      <td style="padding-top: 1.2em;">
+        {{history.date}}
+      </td>
+      <td style="padding-top: 1.2em;">
+        {{history.filename}}
+      </td>
+      <td style="padding-top: 1.2em;">
+        {{history.checksum}}
+      </td>
+      <td>
+        <ng-container *ngIf="history.status == 0">
+          <clr-spinner [clrSmall]="true"></clr-spinner>&nbsp;&nbsp;Processing...
+        </ng-container>
+        <ng-container *ngIf="history.status == 1">
+          <cds-icon shape="check-circle" size="20"></cds-icon>&nbsp;Complete
+        </ng-container>
+        <ng-container *ngIf="history.status == 2">
+          <clr-spinner [clrSmall]="true"></clr-spinner>&nbsp;&nbsp;Deleting Items...
+        </ng-container>
+        <ng-container *ngIf="history.status == -1">
+          <cds-icon shape="exclamation-circle" size="20"></cds-icon>&nbsp;Processing Error
+        </ng-container>
+      </td>
+      <td style="padding-top: 1.2em;">
+        <a [class.disabled]="history.status == 0 || history.status == 2" (click)="onDeleteRequest(history.checksum)">
+          <clr-icon shape="trash" size="20"></clr-icon>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+  <tbody *ngIf="!uploadHistory.length">
+    <tr>
+      <td colspan="5" class="no-items">
+        <clr-icon shape="filter-off" size="150"></clr-icon>
+        <br><br>
+        <b>No Data</b>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="pagination-container" *ngIf="uploadHistory.length">
+  <a class="page-control" (click)="pageChange(pagConfig.currentPage-1)" [class.disabled]="pagConfig.currentPage == 1">
+    &lt;&lt; Previous
+  </a>
+  <b class="page-current">{{ pagConfig.currentPage }}</b>
+  <a class="page-control" (click)="pageChange(pagConfig.currentPage+1)"
+    [class.disabled]="!(pagConfig.total >= pagConfig.pageSize * pagConfig.currentPage)">
+    Next &gt;&gt;
+  </a>
+</div>

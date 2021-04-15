@@ -1,0 +1,113 @@
+<clr-modal [(clrModalOpen)]="editPatternModal" [clrModalClosable]="false">
+  <h3 class="modal-title">Edit Pattern</h3>
+  <div class="modal-body" style="margin-bottom: 10px;">
+    <form [formGroup]="patternForm" class="clr-form clr-form-horizontal" autocomplete="off">
+      <clr-input-container>
+        <label>Separator</label>
+        <input formControlName="separator" clrInput maxlength=1 />
+        <clr-control-helper>
+          <clr-icon shape="help-info" size="12"></clr-icon> Item separator character
+        </clr-control-helper>
+        <clr-control-error>
+          Item separator required
+        </clr-control-error>
+      </clr-input-container>
+      <clr-input-container>
+        <label>Comment character</label>
+        <input type="text" formControlName="commentChar" clrInput maxlength=1 />
+        <clr-control-helper>
+          <clr-icon shape="help-info" size="12"></clr-icon> Lines starting with this char will be ignored
+        </clr-control-helper>
+        <clr-control-error>
+          Value required
+        </clr-control-error>
+      </clr-input-container>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="patternString(); editPatternModal = false"
+      [disabled]="!patternForm.valid">Apply</button>
+  </div>
+</clr-modal>
+
+<clr-modal [clrModalOpen]="loadingModal()" [clrModalClosable]="false">
+  <div class="modal-body status-container">
+    <div class="clr-row clr-justify-content-center">
+      <ng-container *ngIf="uploadStatus == 1">
+        <clr-spinner>Loading ...</clr-spinner>
+      </ng-container>
+      <ng-container *ngIf="uploadStatus == 2">
+        <clr-icon shape="success-standard" size="90" solid></clr-icon>
+      </ng-container>
+      <ng-container *ngIf="uploadStatus == -1">
+        <clr-icon shape="error-standard" size="90" solid></clr-icon>
+      </ng-container>
+    </div>
+    <div class="clr-row clr-justify-content-center">
+      <h3 *ngIf="uploadStatus == 1">Uploading file</h3>
+      <h3 *ngIf="uploadStatus == 2">Upload complete</h3>
+      <h3 *ngIf="uploadStatus == -1">Error</h3>
+    </div>
+    <div class="clr-row clr-justify-content-center">
+      <p *ngIf="uploadStatus == 1">Please wait...</p>
+      <p *ngIf="uploadStatus == 2">File will be processed in background</p>
+      <p *ngIf="uploadStatus == -1">Unable to upload file</p>
+    </div>
+    <div class="clr-row clr-justify-content-center" style="margin-top: 1.6em;">
+      <button type="button" class="btn btn-primary" (click)="uploadStatus = 0"
+        [disabled]="uploadStatus == 1">Ok</button>
+    </div>
+  </div>
+</clr-modal>
+
+<form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="clr-form clr-form-horizontal" autocomplete="off">
+  <div class="clr-form-control" style="margin-top: 0px;">
+    <input type="file" id="dump-file" name="dump-file" (change)="onFileSelect($event)">
+    <a (click)="editPatternModal = true">
+      <clr-icon shape="wrench" size="30"></clr-icon>
+    </a>
+    <input formControlName="pattern" type="text" id="pattern" class="pattern-input" />
+  </div>
+  <div class="clr-form-control">
+    <div class="preview-area">
+      <ng-container *ngFor="let line of previewContent">
+        {{ line }}
+        <br>
+      </ng-container>
+    </div>
+  </div>
+
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th *ngFor="let n of counter(previewTableMaxCols); let i = index;">
+          <a (click)="toggleColumn(i)">
+            <clr-icon *ngIf="!isSelected(i)" shape="plus-circle" size="20"></clr-icon>
+            <clr-icon *ngIf="isSelected(i)" shape="minus-circle" size="20"></clr-icon>
+          </a>
+        </th>
+      </tr>
+    </thead>
+    <tbody *ngIf="previewTable.length">
+      <tr *ngFor="let row of previewTable">
+        <td *ngFor="let value of row; let i = index;" [class.selected-column]="isSelected(i)">
+          {{ value }}
+        </td>
+      </tr>
+    </tbody>
+    <tbody *ngIf="!previewTable.length">
+      <tr>
+        <td colspan="5" class="no-items">
+          <clr-icon shape="file" size="100"></clr-icon>
+          <br><br><br>
+          <b>Select a file to enable parser preview</b>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="clr-form-control" style="float: right;">
+    <button class="btn btn-primary" type="submit" [disabled]="!this.uploadForm.valid">Upload file</button>
+  </div>
+</form>

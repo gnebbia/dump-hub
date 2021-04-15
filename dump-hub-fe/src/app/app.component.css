@@ -1,0 +1,16 @@
+.header {
+    background-color: hsl(0, 0%, 0%);
+}
+
+.branding {
+    padding: 0px 10px;
+    min-width: 0px;
+}
+
+.branding a {
+    color: white
+}
+
+.branding a:hover {
+    color: white;
+}

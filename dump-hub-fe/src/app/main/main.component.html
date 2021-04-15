@@ -1,0 +1,55 @@
+<form [formGroup]="searchForm" autocomplete="off">
+    <input placeholder="Search..." name="search" class="search" formControlName="query" />
+</form>
+
+<div class="progress loop" *ngIf="loadingResult">
+    <progress></progress>
+</div>
+<div class="progress top" *ngIf="!loadingResult">
+    <progress value="0" max="100"></progress>
+</div>
+
+<clr-modal [(clrModalOpen)]="searchError">
+    <h3 class="modal-title">
+        <cds-icon shape="error-standard" size=30 solid></cds-icon>&nbsp;Search error
+    </h3>
+    <div class="modal-body">
+        <p>Unable to retrieve search results<p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="searchError = false">Ok</button>
+    </div>
+</clr-modal>
+
+<table class="table">
+    <tbody *ngIf="results.length">
+        <tr *ngFor="let result of results">
+            <td class="entry">
+                {{result.origin}} ({{result.origin_id}})
+                <ng-container *ngFor="let item of result | keyvalue">
+                    <code *ngIf="item.key != 'origin' && item.key != 'origin_id'">{{item.value}}</code><br>
+                </ng-container>
+            </td>
+        </tr>
+    </tbody>
+    <tbody *ngIf="!results.length">
+        <tr>
+            <td colspan="5" class="no-items">
+                <clr-icon shape="filter-off" size="150"></clr-icon>
+                <br><br>
+                <b>No Data</b>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="pagination-container" *ngIf="results.length">
+    <a class="page-control" (click)="pageChange(pagConfig.currentPage-1)" [class.disabled]="pagConfig.currentPage == 1">
+        &lt;&lt; Previous
+    </a>
+    <b class="page-current">{{ pagConfig.currentPage }}</b>
+    <a class="page-control" (click)="pageChange(pagConfig.currentPage+1)"
+        [class.disabled]="!(pagConfig.total >= pagConfig.pageSize * pagConfig.currentPage)">
+        Next &gt;&gt;
+    </a>
+</div>
